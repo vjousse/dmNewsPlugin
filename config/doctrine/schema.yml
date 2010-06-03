@@ -1,0 +1,9 @@
+DmNews:
+  actAs:
+    Timestampable: ~
+    Publishable: ~
+    DmSortable: ~
+
+  columns:
+    title: { type: string(255), notnull: true }
+    body: { type: clob }

@@ -1,0 +1,11 @@
+Content:
+
+  News:
+    dmNews:
+      model: dmNews       # Ok it's not required, but less magic is always better ;)
+      page: true
+      name: News
+
+      components:
+        list:
+        show:
