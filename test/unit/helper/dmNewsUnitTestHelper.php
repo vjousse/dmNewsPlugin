@@ -13,4 +13,14 @@ class dmNewsUnitTestHelper extends dmUnitTestHelper
   {
     $this->limeTest = $t;
   }
+
+  public function addNews($startDate=null,$endDate=null)
+  {
+    $news = new DmNews();
+    $news->started_at=$startDate;
+    $news->ended_at=$endDate;
+    $news->save();
+
+    return $news;
+  }
 }
