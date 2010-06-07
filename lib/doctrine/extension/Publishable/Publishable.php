@@ -19,8 +19,8 @@ class Doctrine_Template_Publishable extends Doctrine_Template {
  * @return void
  */
   public function setTableDefinition() {
-    $this->hasColumn('started_at', 'timestamp');
-    $this->hasColumn('ended_at', 'timestamp');
+    $this->hasColumn('started_at', 'datetime');
+    $this->hasColumn('ended_at', 'datetime');
   }
 
 
@@ -36,23 +36,21 @@ class Doctrine_Template_Publishable extends Doctrine_Template {
   }
   
   /**
-   * isPublishable checks if the item is publishable or not according to a timestamp
-   * if no timestamp is passed as an argument, current time() will be used
+   * isPublishable checks if the item is publishable or not according to a date time
+   * if no date time is passed as an argument, current time() will be used
    * 
-   * @param int $time a timestamp or null (current time)
+   * @param int $dateTime a date or null (current time)
    * @access public
    * @return bool true if it's publishable according to the $time else false
    */
-  public function isPublishable($time=null) {
+  public function isPublishable($dateTime=null) {
 
-    if(is_null($time))
-      $time = time();
-      
+    $time = $this->getTime($dateTime);
+
     $object = $this->getInvoker();
     
     $endTime = strtotime($object->ended_at);
     $startTime = strtotime($object->started_at);
-
 
     return (
       is_null($object->started_at) && is_null($object->ended_at) ||
@@ -89,18 +87,17 @@ class Doctrine_Template_Publishable extends Doctrine_Template {
 
   /**
    * getUnPublishableQueryTableProxy returns a query fetching items which are
-   * not publishable according to a timestamp or if the timestamp is null, according
+   * not publishable according to a timestamp (or a datetime) or if the timestamp is null, according
    * to the current time()
    * 
    * @param int $time 
-   * @param mixed $order Order by to add to the qyery object (or not)
+   * @param mixed $order Order by to add to the query object (or not)
    * @access public
    * @return void
    */
   public function getUnPublishableQueryTableProxy($time=null,$order=null) {
 
-    if(is_null($time))
-      $time = time();
+    $time = $this->getTime($time);
 
     $q = $this->getInvoker()
         ->getTable()
@@ -126,22 +123,53 @@ class Doctrine_Template_Publishable extends Doctrine_Template {
    */
   public function getPublishableQueryTableProxy($time=null,$order=null) {
 
-    if(is_null($time))
-      $time = time();
+    $time = $this->getTime($time);
 
     $q = $this->getInvoker()
         ->getTable()
         ->createQuery('p')
-        ->select('p.*,t.*')
-        ->leftJoin('p.Translation t')
-        ->where('started_at IS NULL OR started_at <= ?',array(date('Y-m-d', $time)))
-        ->andWhere('ended_at IS NULL OR ended_at >= ?',array(date('Y-m-d', $time)))
+        ->select('p.*')
+        ->where('started_at IS NULL OR started_at <= ?',array(date('Y-m-d H:m:i', $time)))
+        ->andWhere('ended_at IS NULL OR ended_at >= ?',array(date('Y-m-d H:m:i', $time)))
         ->orderBy('created_at desc');
 
     if(!is_null($order))
       $q->orderBy($order);
 
     return $q;
+  }
+
+
+  /**
+   * getTime always returns a timestamp
+   * if $date is null, it returns the current TS
+   * if $date is a timestamp, it does nothing and returns it
+   * if strtotime($date) returns true, it returns the result of strtotime 
+   * 
+   * @param mixed $date null, a timestamp or a date 'Y-m-d H:i:s' 
+   * @access public
+   * @return void
+   */
+  public function getTime($date=null)
+  {
+    if(is_null($date))
+    {
+      
+      return time();
+    }
+
+    //Can't parse as a date, perhaps a timestamp ?
+    //return as it is
+    if(!($time=strtotime($date)))
+    {
+      return $date;
+    }
+    else
+    {
+      return $time;
+    }
+
+
   }
 
 }
