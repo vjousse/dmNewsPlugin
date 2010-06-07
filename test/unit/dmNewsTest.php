@@ -1,8 +1,11 @@
 <?php
-require_once(getcwd() .'/config/ProjectConfiguration.class.php');
 
-require_once(dm::getDir().'/dmCorePlugin/test/unit/helper/dmUnitTestHelper.php');
+require_once(dirname(__FILE__).'/helper/dmNewsUnitTestHelper.php');
 
-$t = new lime_test(0, new lime_output_color());
+$helper = new dmNewsUnitTestHelper();
+$helper->bootFast();
 
-$t->comment('1) Testing Publishable methods');
+$t = new lime_test();
+
+$t->comment('Testing Publishable behaviour');
+
